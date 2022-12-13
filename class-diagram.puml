@@ -1,0 +1,104 @@
+@startuml
+
+class BookingSystem {
+  +BookingSystem(user_mgmt: UserManagement)
+  +login(user: User, pass: Password): Session
+  +logout(Session): Boolean
+
+  +show_rooms(): Room[]
+  +show_bookings(): Booking[]
+
+  +book(session: Session, room: Room): Booking
+  +cancel(session: Session, Booking): Boolean
+  +edit(session: Session, Booking): Boolean
+  
+  -user_mgmt: UserManagement
+  -room_mgmt: RoomManagement
+  -booking_mgmt: BookingManagement
+}
+BookingSystem "1" o-- "1" UserManagement
+BookingSystem "1" *-- "1" RoomManagement
+BookingSystem "1" *-- "1" BookingManagement
+
+interface UserManagement {
+  +login(user: User, pass: Password) : Session
+  +logout(Session) : Boolean
+
+  +add(user: User): Boolean
+  +edit(user: User): Boolean
+  +remove(user: User): Boolean
+}
+
+UserManagement <|-- LocalUserManagement
+class LocalUserManagement {
+  -users: User[]
+}
+LocalUserManagement "1" o-- "0.." User
+
+UserManagement <|-- RemoteUserManagement
+class RemoteUserManagement {
+  -connect()
+  -disconnect()
+  -server: Server
+}
+RemoteUserManagement "1" -- "0.." User
+
+class User {
+  first_name: String
+  last_name: String
+  email_addr: EMailAddr
+  role: UserRole
+}
+User "1" -- "1" UserRole
+
+enum UserRole {
+  USER, ADMIN
+}
+
+class RoomManagement {
+  +add(room: Room): Boolean
+  +edit(room: Room): Boolean
+  +remove(room: Room): Boolean
+
+  +find_room(feature: Feature): Room
+
+  -rooms : Room[]
+}
+RoomManagement "1" o-- "0..*" Room
+
+class Room {
+  -name : String
+  -description : String
+  -capacity : Integer
+  -location : Location
+  -features : Features[]
+}
+
+class BookingManagement {
+  +add(Booking): Boolean
+  +edit(Booking): Boolean
+  +remove(Booking): Boolean
+  
+  -is_free(booking: Booking): Boolean
+  -is_reserved(booking: Booking): Boolean
+  -bookings: Booking[]
+}
+BookingManagement "1" o-- "0..*" Booking
+
+class Booking {
+  -id: Integer
+  -user: User
+  -room: Room
+  -start_date: Date
+  -end_date: Date
+  -status: BookingStatus
+}
+Booking "1" -- "1" BookingStatus
+Booking "1" -- "1" User
+Booking "1" -- "1" Room
+
+enum BookingStatus {
+  CANCELED, RESERVED, CONFIRMED
+}
+
+@enduml

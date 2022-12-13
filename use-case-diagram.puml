@@ -1,0 +1,73 @@
+
+@startuml
+
+skinparam actorStyle awesome
+left to right direction
+
+actor :User: as user
+actor :Admin: as admin
+actor :System: as system
+
+package "Booking System" {
+  usecase (Configure system) as configure_system
+  usecase (Manage users) as manager_users
+  usecase (Manage rooms) as manager_rooms
+
+  usecase (Login user) as login
+  usecase (Logout user) as logout
+
+  usecase (Book room) as book_room
+  usecase (Edit booking) as edit_booking
+  usecase (Cancel booking) as cancel_booking
+
+  usecase (Show rooms) as show_rooms
+  usecase (Show bookings) as show_bookings
+
+  usecase (Process booking request) as process_request
+ 
+  manager_users .> configure_system : extends
+  manager_rooms .> configure_system : extends
+
+  book_room .> process_request : include
+  edit_booking .> process_request : include
+  cancel_booking .> process_request : include
+  
+  user --> login
+  user --> logout
+
+  user --> book_room
+  user --> edit_booking
+  user --> cancel_booking
+
+  user --> show_rooms
+  user --> show_bookings
+
+  admin --> configure_system
+
+  system -> process_request
+
+  package "System Configuration" {
+  
+    package "User Management"{
+      usecase (Add user) as add_user
+      usecase (Edit user) as edit_user
+      usecase (Remove user) as remove_user
+
+      admin --> add_user
+      admin --> edit_user
+      admin --> remove_user
+    }
+
+    package "Room Managemet" {
+      usecase (Add room) as add_room
+      usecase (Edit room) as edit_room
+      usecase (Remove room) as remove_room
+
+      admin --> add_room
+      admin --> edit_room
+      admin --> remove_room
+    }
+  }
+}
+
+@enduml
