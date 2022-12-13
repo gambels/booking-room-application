@@ -2,8 +2,9 @@
 
 ## Booking Room Application
 
-Example      : https://eng-rooms.methodpark.de):
-Participants : Claus, Sven, Lena, Renatm Beeke, Muhammed
+Example      : https://eng-rooms.methodpark.de
+
+Participants : Claus, Sven, Lena, Renat, Beeke, Muhammed
 
 Diagrams:
 * Domain model (class diagram)
