@@ -1,9 +1,10 @@
 @startuml
 
 class BookingSystem {
-  +BookingSystem(user_mgmt: UserManagement)
-  +login(user: User, pass: Password): Session
-  +logout(Session): Boolean
+  +BookingSystem(authentication: IAuthentication)
+  
+  +login(user: User, pass: Password) : Sessions
+  +logout(Session) : Boolean
 
   +show_rooms(): Room[]
   +show_bookings(): Booking[]
@@ -12,36 +13,61 @@ class BookingSystem {
   +cancel(session: Session, Booking): Boolean
   +edit(session: Session, Booking): Boolean
   
-  -user_mgmt: UserManagement
-  -room_mgmt: RoomManagement
-  -booking_mgmt: BookingManagement
+  -authentication: IAuthentication
+  -sessions: Sessions
+  -rooms: Rooms
+  -bookings: Bookings
 }
-BookingSystem "1" o-- "1" UserManagement
-BookingSystem "1" *-- "1" RoomManagement
-BookingSystem "1" *-- "1" BookingManagement
+BookingSystem "1" o-- "1" IAuthentication
+BookingSystem "1" *-- "1" Sessions
+BookingSystem "1" *-- "1" Rooms
+BookingSystem "1" *-- "1" Bookings
 
-interface UserManagement {
-  +login(user: User, pass: Password) : Session
-  +logout(Session) : Boolean
+interface IAuthentication {
+  +authenticate(user: User, pass: Password) : Boolean
+  +get_users(): Users
+}
 
+IAuthentication "1" <|-- "0.." LocalAuthentication
+class LocalAuthentication {
+  -users: users
+}
+LocalAuthentication "1" o-- "1" Users
+
+IAuthentication "1" <|-- "0.." RemoteAuthentication
+class RemoteAuthentication {
+  +connect(server: Host): Boolean
+  +disconnect(): Boolean
+
+  -users: users
+}
+RemoteAuthentication "1" o-- "1" Users
+
+class Sessions
+{
+  +add(session: Session): Boolean
+  +remove(Session): Boolean
+  +is_valid(Session): Boolean
+  
+  -sessions: Session[]
+}
+Sessions "1" o-- "0..*" Session
+
+class Session
+{
+  id: Integer
+  user: User
+  login: Date
+}
+
+class Users {
   +add(user: User): Boolean
   +edit(user: User): Boolean
   +remove(user: User): Boolean
-}
 
-UserManagement <|-- LocalUserManagement
-class LocalUserManagement {
   -users: User[]
 }
-LocalUserManagement "1" o-- "0.." User
-
-UserManagement <|-- RemoteUserManagement
-class RemoteUserManagement {
-  -connect()
-  -disconnect()
-  -server: Server
-}
-RemoteUserManagement "1" -- "0.." User
+Users "1" o-- "0..*" User
 
 class User {
   first_name: String
@@ -55,7 +81,7 @@ enum UserRole {
   USER, ADMIN
 }
 
-class RoomManagement {
+class Rooms {
   +add(room: Room): Boolean
   +edit(room: Room): Boolean
   +remove(room: Room): Boolean
@@ -64,7 +90,7 @@ class RoomManagement {
 
   -rooms : Room[]
 }
-RoomManagement "1" o-- "0..*" Room
+Rooms "1" o-- "0..*" Room
 
 class Room {
   -name : String
@@ -74,7 +100,7 @@ class Room {
   -features : Features[]
 }
 
-class BookingManagement {
+class Bookings {
   +add(Booking): Boolean
   +edit(Booking): Boolean
   +remove(Booking): Boolean
@@ -83,7 +109,7 @@ class BookingManagement {
   -is_reserved(booking: Booking): Boolean
   -bookings: Booking[]
 }
-BookingManagement "1" o-- "0..*" Booking
+Bookings "1" o-- "0..*" Booking
 
 class Booking {
   -id: Integer
